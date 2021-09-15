@@ -1,0 +1,16 @@
+version: "3"
+services:
+  mongo:
+    # 사용할 이미지
+    image: mongo
+    restart: always
+    # 컨테이너 이름 설정
+    container_name: mongo
+    # 접근 포트 설정 (컨테이너 외부: 컨테이너 내부)
+    ports:
+      - "27017:27017"
+   
+    # volumes: 
+    #   - data/db:/data/db
+    env_file: 
+      - .env
