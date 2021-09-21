@@ -22,21 +22,21 @@ describe("Product Controller Create", () => {
         expect(typeof productController.createProduct).toBe("function");
     })
 
-    test("should call ProductModel.create", () => {
-        productController.createProduct(req, res, next);
+    test("should call ProductModel.create", async() => {
+        await productController.createProduct(req, res, next);
         expect(productModel.create).toBeCalledWith(newProduct);
     })  
 
-    test("should return 201 response code", () => {
-        productController.createProduct(req,res, next);
+    test("should return 201 response code", async() => {
+        await productController.createProduct(req,res, next);
         expect(res.statusCode).toBe(201);
         // 결과값이 잘 전송이 됐는지 -> _isEndCalled
         expect(res._isEndCalled).toBeTruthy();
     })
 
-    test("should return json body in response", () => {
+    test("should return json body in response", async() => {
         productModel.create.mockReturnValue(newProduct);
-        productController.createProduct(req, res, next);
+        await productController.createProduct(req, res, next);
         expect(res._getJSONData()).toStrictEqual(newProduct)
     })
 })
