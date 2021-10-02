@@ -13,10 +13,6 @@ const connect = () => {
 
 connect()
 
-mongoose.connection.on("error", (err) => {
-  console.error("몽고디비 연결 에러", err);
-});
-
 // App
 const app = express()
 app.use(express.json())
@@ -25,5 +21,11 @@ app.get('/', (req, res) => {
     res.send('hello world')
 })
 
+app.use((error, req, res, next) => {
+  res.status(500).json({ message: error.message})
+})
+
 app.listen(PORT, "0.0.0.0")
 console.log('sever is running')
+
+module.exports = app;
