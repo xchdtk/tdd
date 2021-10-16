@@ -6,7 +6,9 @@ const allProducts = require('../data/all-products.json');
 
 productModel.create = jest.fn();
 productModel.find = jest.fn();
+productModel.findById = jest.fn();
 
+const productId = "615ffd1e5f373cb30f0f208e";
 let req, res, next;
 beforeEach(() => {
     req = httpMocks.createRequest();
@@ -47,37 +49,71 @@ describe("Product Controller Create", () => {
         await productController.createProduct(req, res, next)
         expect(next).toBeCalledWith(errorMessage) 
     })
+})
 
-    describe("Product Controller Get", () => {
-        test("should have a getProducts function", () => {
-            expect(typeof productController.getProducts).toBe("function");
-        })
+describe("Product Controller Get", () => {
+    test("should have a getProducts function", () => {
+        expect(typeof productController.getProducts).toBe("function");
+    })
 
-        test("should call ProductModel.find({})", async() => {
-            await productController.getProducts(req, res, next);
-            expect(productModel.find).toHaveBeenCalledWith({});
-        })
+    test("should call ProductModel.find({})", async() => {
+        await productController.getProducts(req, res, next);
+        expect(productModel.find).toHaveBeenCalledWith({});
+    })
 
-        test("should return 200 response", async() => {
-            await productController.getProducts(req, res, next);
-            expect(res.statusCode).toBe(200);
-            expect(res._isEndCalled).toBeTruthy();
-        })
+    test("should return 200 response", async() => {
+        await productController.getProducts(req, res, next);
+        expect(res.statusCode).toBe(200);
+        expect(res._isEndCalled).toBeTruthy();
+    })
 
-        test("should return json body in response", async() => {
-            productModel.find.mockReturnValue(allProducts);
-            await productController.getProducts(req, res, next);
-            expect(res._getJSONData()).toStrictEqual(allProducts);
-        })
+    test("should return json body in response", async() => {
+        productModel.find.mockReturnValue(allProducts);
+        await productController.getProducts(req, res, next);
+        expect(res._getJSONData()).toStrictEqual(allProducts);
+    })
 
-        test('should handle errors', async() => {
-            const errorMessage = { message: 'error finding product data'}
-            const rejectedPromise = Promise.reject(errorMessage);
-            productModel.find.mockReturnValue(rejectedPromise);
-            await productController.getProducts(req, res, next);
-            expect(next).toHaveBeenCalledWith(errorMessage);
-        })
-
-        
+    test('should handle errors', async() => {
+        const errorMessage = { message: 'error finding product data'}
+        const rejectedPromise = Promise.reject(errorMessage);
+        productModel.find.mockReturnValue(rejectedPromise);
+        await productController.getProducts(req, res, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
     })
 })
+
+describe("Product Contoller GetById", () => {
+    test("should have a getProductById", () => {
+        expect(typeof productController.getProductById).toBe("function");
+    })
+
+    test("should call productMode.findById", async() => {
+        req.params.productId = productId
+        await productController.getProductById(req, res, next);
+        expect(productModel.findById).toBeCalledWith(productId);
+
+    })
+    test("should return json body and response code 200", async() => {
+        productModel.findById.mockReturnValue(newProduct);
+        await productController.getProductById(req, res, next);
+        expect(res.statusCode).toBe(200);
+        expect(res._getJSONData()).toStrictEqual(newProduct);
+        expect(res._isEndCalled()).toBeTruthy();
+    })
+
+    test("should return 404 when item doesnt exist", async() => {
+        productModel.findById.mockReturnValue(null);
+        await productController.getProductById(req, res, next);
+        expect(res.statusCode).toBe(404);
+        expect(res._isEndCalled()).toBeTruthy();
+    })
+
+    test("should handle errors", async() => {
+        const errorMessage = { message: "error"};
+        const rejectedPromise = Promise.reject(errorMessage);
+        productModel.findById.mockReturnValue(rejectedPromise);
+        await productController.getProductById(req, res, next);
+        expect(next).toHaveBeenCalledWith(errorMessage)
+    })
+})
+

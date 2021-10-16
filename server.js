@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
     res.send('hello world')
 })
 
+// error handling
 app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message})
 })
